@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: consumer  # Name of the Spring Boot application
+
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092  # Kafka broker address
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer  # Deserializer for Kafka message keys
+
+      # Use ErrorHandlingDeserializer to wrap the actual value deserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+
+      properties:
+        spring:
+          # The actual delegate deserializer used inside ErrorHandlingDeserializer
+          deserializer:
+            value:
+              delegate:
+                class: org.springframework.kafka.support.serializer.JsonDeserializer
+
+          json:
+            # Trust all packages when deserializing JSON (use cautiously in production)
+            trusted:
+              packages: "*"
+
+            # The target type to deserialize incoming JSON payloads into
+            value:
+              default:
+                type: com.domo.consumer.Employee
+
+server:
+  port: 8081  # Port on which the application will run

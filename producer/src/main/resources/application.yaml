@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: producer  # Name of the Spring Boot application
+
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092  # Address of the Kafka broker
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer  # Serializer for Kafka message keys
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer  # Serializer for Kafka message values
+
+      properties:
+        spring.json.add.type.headers: false  # Prevents type headers from being added (useful for compatibility with non-Spring consumers)
+
+  cloud:
+    function:
+      definition: uppercase  # Declares the name of the function bean to expose (matches the @Bean method name)
+    web:
+      path: /uppercase  # HTTP path to trigger the function via a web endpoint
