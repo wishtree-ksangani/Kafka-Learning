@@ -1,41 +1,41 @@
 package com.domo.producer;
 
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.function.Supplier;
 
 /**
- * REST controller responsible for sending {@link Employee} messages to a Kafka topic.
+ * KafkaProducer is a configuration class that defines a Spring Cloud Stream Supplier function.
+ * <p>
+ * This supplier periodically generates an {@link Employee} object and publishes it to the configured Kafka topic.
+ * The polling interval is defined in the application's configuration (e.g., every 5 seconds).
+ * </p>
+ *
+ * <p>
+ * This is useful for scenarios where you want to continuously emit data at a fixed interval.
+ * </p>
+ *
+ * @author YourName
  */
-@RestController
-@RequestMapping("/api")
+@Configuration
 public class KafkaProducer {
 
-    private final KafkaTemplate<String, Employee> kafkaTemplate;
-
     /**
-     * Constructs a new {@code KafkaProducer} with the specified {@link KafkaTemplate}.
-     *
-     * @param kafkaTemplate the Kafka template used to send messages
-     */
-    public KafkaProducer(KafkaTemplate<String, Employee> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
-    }
-
-    /**
-     * Sends an {@link Employee} object to the Kafka topic named {@code "my-topic-11"}.
+     * Defines a Supplier bean that produces an {@link Employee} object with a fixed name ("Kevin").
      * <p>
-     * The {@link Employee} is created using the provided name, and the message is sent asynchronously.
+     * Spring Cloud Stream will automatically poll this method at a fixed delay (configured in YAML),
+     * and send the returned Employee to the Kafka topic bound to {@code sendEmployeeDetails-out-0}.
+     * </p>
      *
-     * @param name the name of the employee to send
-     * @return a confirmation message indicating the message was sent, including the employee's name and ID
+     * @return a {@link Supplier} that returns a new {@link Employee} instance
      */
-    @PostMapping("/send")
-    public String sendMessage(@RequestParam("name") String name) {
-        Employee employee = new Employee(name);
-        kafkaTemplate.send("my-topic-11", employee);
-        return "Message sent: " + employee.name + " - " + employee.id;
+    @Bean
+    public Supplier<Employee> sendEmployeeDetails() {
+        return () -> {
+            Employee employee = new Employee("Kevin");
+            System.out.println("Sending : " + employee.name); // Only for debug
+            return employee;
+        };
     }
 }

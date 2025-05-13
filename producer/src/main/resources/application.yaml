@@ -1,18 +1,23 @@
 spring:
   application:
-    name: producer  # Name of the Spring Boot application
-
-  kafka:
-    producer:
-      bootstrap-servers: localhost:9092  # Address of the Kafka broker
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer  # Serializer for Kafka message keys
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer  # Serializer for Kafka message values
-
-      properties:
-        spring.json.add.type.headers: false  # Prevents type headers from being added (useful for compatibility with non-Spring consumers)
+    name: producer  # Unique name for this Spring Boot application instance
 
   cloud:
     function:
-      definition: uppercase  # Declares the name of the function bean to expose (matches the @Bean method name)
-    web:
-      path: /uppercase  # HTTP path to trigger the function via a web endpoint
+      definition: sendEmployeeDetails  # Name of the function bean to expose as a messaging function
+
+    stream:
+      function:
+        definition: sendEmployeeDetails  # Links the stream configuration to the specific function
+
+      bindings:
+        sendEmployeeDetails-out-0:  # Output binding (index 0) for the function 'sendEmployeeDetails'
+          destination: my-topic  # Kafka topic name where the messages will be sent
+          content-type: application/json  # Message content type (serialized as JSON)
+
+      poller:
+        fixed-delay: 5000  # Time interval (in ms) between each poll for Supplier functions (5 seconds here)
+
+      kafka:
+        binder:
+          brokers: localhost:9092  # Kafka broker address; change to your Kafka server if running elsewhere

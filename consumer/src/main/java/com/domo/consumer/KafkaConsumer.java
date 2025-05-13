@@ -1,25 +1,39 @@
 package com.domo.consumer;
 
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.function.Consumer;
 
 /**
- * Kafka consumer component that listens to messages from a Kafka topic.
+ * KafkaConsumer is a configuration class that defines a Spring Cloud Stream Consumer function.
  * <p>
- * This consumer is part of the consumer group {@code "my-group-1"} and listens to messages on the topic {@code "my-topic-11"}.
+ * This consumer listens for incoming {@link Employee} messages from a Kafka topic configured via application properties,
+ * and processes each received message.
+ * </p>
+ *
+ * <p>
+ * The consumer function is bound to the input destination using the Spring Cloud Stream bindings
+ * (e.g., {@code processEmployeeData-in-0}) and runs automatically upon message arrival.
+ * </p>
+ *
+ * @author YourName
  */
-@Component
+@Configuration
 public class KafkaConsumer {
 
     /**
-     * Listens to the Kafka topic {@code "my-topic-11"} and processes incoming {@link Employee} messages.
+     * Defines a Consumer bean that processes {@link Employee} messages.
      * <p>
-     * This method is triggered automatically by Spring Kafka when a new message is received.
+     * When a message is received from the bound Kafka topic, this consumer logs the employee's name and ID.
+     * </p>
      *
-     * @param employee the {@link Employee} object received from the topic
+     * @return a {@link Consumer} that takes an {@link Employee} object and prints its details
      */
-    @KafkaListener(topics = "my-topic-11", groupId = "my-group-1")
-    public void listen1(Employee employee) {
-        System.out.println("Listened from 1: " + employee.name + " - " + employee.id);
+    @Bean
+    public Consumer<Employee> processEmployeeData() {
+        return employee -> {
+            System.out.println("Received : " + employee.name + " - " + employee.id); // Debug output
+        };
     }
 }
